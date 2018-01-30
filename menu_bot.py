@@ -1,9 +1,11 @@
 #!/usr/bin/python2
+# -*- coding: utf-8 -*-
 from datetime import datetime
 import logging
 import os
 
 from bs4 import BeautifulSoup
+from googletrans import Translator
 import requests
 from telegram.ext import Updater, CommandHandler
 
@@ -58,16 +60,39 @@ def today_menu(weekday):
         if day_name in menus:
             return menus[day_name]
 
-    return [u"Desvaerre, ingen menu fundet"]
+    return [u"Desværre, ingen menu fundet"]
+
+
+def translate(header, menu, language):
+    translator = Translator()
+    indentations = [len(s) - len(s.lstrip('\t')) for s in menu]
+    translated_header, translated_menu = translator.translate([header, menu], src='da', dest=language)
+    header = translated_header.text
+    menu = ['\t' * x[0] + x[1].text for x in zip(indentations, translated_menu)]
+    return header, menu
 
 
 def bot_menu(bot, update):
+    arguments = update.message.text.split(' ')
+    if len(arguments) > 2:
+        bot.send_message(chat_id=update.message.chat_id, text=u"Invalid kommando")
+        return
+    translate_to = None
+    if len(arguments) > 1:
+        translate_to = arguments[1]
+
     header = "Dagens menu"
     weekday = datetime.today().weekday()
     if datetime.today().hour >= 13:
         weekday += 1
         header = "Morgendagens menu"
     menu = today_menu(weekday)
+    if translate_to:
+        try:
+            header, menu = translate(header, menu, translate_to)
+        except ValueError:
+            bot.send_message(chat_id=update.message.chat_id, text=u"Ukendt sprog. Brug ISO639-1 landekode")
+            return
     bot.send_message(chat_id=update.message.chat_id, text=u"{}:\t\n{}".format(header, "\t\n".join(menu)))
 
 
@@ -78,7 +103,9 @@ def error_handler(bot, update, telegram_error):
 def start(bot, update):
     user = update.message.from_user.username
     bot.send_message(chat_id=update.message.chat_id,
-                     text="Hej @{0}, Jeg er Nordic Catering Bot\nBrug /menu kommandoen for at se dagens menu".format(user))
+                     text="Hej @{0}, Jeg er Nordic Catering Bot\n"
+                          "Brug /menu kommandoen for at se dagens menu\n"
+                          "Brug /menu <lang> for dagens menu på sproget <lang>".format(user))
 
 updater.dispatcher.add_handler(CommandHandler('menu', bot_menu))
 updater.dispatcher.add_handler(CommandHandler('start', start))
