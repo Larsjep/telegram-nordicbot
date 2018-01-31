@@ -13,8 +13,8 @@ from telegram.ext import CommandHandler, Updater
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 log = logging.getLogger(__name__)
 
-week_menu_url = ("http://www.nordiccatering.dk/frokostordning/ugens-frokostmenu.aspx")
-week_days = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag"]
+WEEK_MENU_URL = ("http://www.nordiccatering.dk/frokostordning/ugens-frokostmenu.aspx")
+WEEK_DAYS = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag"]
 
 
 def find_menu_in_text(text):
@@ -27,7 +27,7 @@ def find_menu_in_text(text):
             menus[current_day] = menu_lines
             return menus
         elif ":" in line:
-            for day in week_days:
+            for day in WEEK_DAYS:
                 if day in line.lower() or "Der tages forbehold" in line:
                     if current_day:
                         menus[current_day] = menu_lines
@@ -43,7 +43,7 @@ def find_menu_in_text(text):
 
 
 def get_menus():
-    menu_response = requests.get(week_menu_url)
+    menu_response = requests.get(WEEK_MENU_URL)
     if menu_response.status_code == 200:
         menu_html = menu_response.text
         soup = BeautifulSoup(menu_html, "html.parser")
@@ -53,8 +53,8 @@ def get_menus():
 
 def today_menu(weekday):
     menus = get_menus()
-    if weekday < len(week_days):
-        day_name = week_days[weekday]
+    if weekday < len(WEEK_DAYS):
+        day_name = WEEK_DAYS[weekday]
         if day_name in menus:
             return menus[day_name]
 
