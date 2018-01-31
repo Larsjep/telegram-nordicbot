@@ -13,9 +13,6 @@ from telegram.ext import CommandHandler, Updater
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 log = logging.getLogger(__name__)
 
-bot_token = os.environ['BOT_TOKEN']
-updater = Updater(token=bot_token)
-
 week_menu_url = ("http://www.nordiccatering.dk/frokostordning/ugens-frokostmenu.aspx")
 week_days = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag"]
 
@@ -117,9 +114,13 @@ def start(bot, update):
                           "Brug /menu <lang> for dages menu på sproget <lang>".format(user))
 
 
-updater.dispatcher.add_handler(CommandHandler("menu", bot_menu))
-updater.dispatcher.add_handler(CommandHandler("start", start))
-updater.dispatcher.add_error_handler(error_handler)
+if __name__ == "__main__":
+    bot_token = os.environ['BOT_TOKEN']
+    updater = Updater(token=bot_token)
 
-updater.start_polling()
-updater.idle()
+    updater.dispatcher.add_handler(CommandHandler("menu", bot_menu))
+    updater.dispatcher.add_handler(CommandHandler("start", start))
+    updater.dispatcher.add_error_handler(error_handler)
+
+    updater.start_polling()
+    updater.idle()
