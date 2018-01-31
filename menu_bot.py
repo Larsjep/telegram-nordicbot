@@ -67,7 +67,7 @@ def today_menu(weekday):
 def translate(header, menu, language):
     translator = Translator()
     indentations = [len(s) - len(s.lstrip("\t")) for s in menu]
-    translated_header, translated_menu = translator.treanslate([header, menu], src="da", dest=language)
+    translated_header, translated_menu = translator.translate([header, menu], src="da", dest=language)
     header = translated_header.text
     menu = ["\t" * x[0] + x[1].text for x in zip(indentations, translated_menu)]
     return header, menu
