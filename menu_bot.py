@@ -13,7 +13,7 @@ from telegram.ext import CommandHandler, Updater
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 log = logging.getLogger(__name__)
 
-WEEK_MENU_URL = ("http://www.nordiccatering.dk/frokostordning/ugens-frokostmenu.aspx")
+WEEK_MENU_URL = ("http://www.nordiccatering.dk/ugens-frokostmenu.aspx")
 WEEK_DAYS = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag"]
 
 
@@ -26,9 +26,9 @@ def find_menu_in_text(text):
         if "Der tages forbehold" in line:
             menus[current_day] = menu_lines
             return menus
-        elif ":" in line:
+        else:
             for day in WEEK_DAYS:
-                if day in line.lower() or "Der tages forbehold" in line:
+                if day in line.lower():
                     if current_day:
                         menus[current_day] = menu_lines
                     current_day = day
@@ -96,7 +96,8 @@ def bot_menu(bot, update):
     if translate_to:
         try:
             header, menu = translate(header, menu, translate_to)
-        except ValueError:
+        except ValueError as exp:
+            print "Exception occured: {}".format(exp)
             bot.send_message(chat_id=update.message.chat_id, text=u"Ukendt sprog. Brug ISO639-1 landekode")
             return
     bot.send_message(chat_id=update.message.chat_id, text=u"{}:\t\n{}".format(header, "\t\n".join(allergies_to_emoji(menu))))
