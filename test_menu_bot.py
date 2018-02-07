@@ -23,6 +23,18 @@ Der tages forbehold for ændringer i menuen, såfremt de rette råvarer ikke kan
         self.assertIn('torsdag', menu)
         self.assertEqual(8, len(menu['torsdag']))
 
+    def test_allergies_to_emoji(self):
+
+        test_vector = [
+            ('foo (L) bar', u"foo 🥛 bar"),
+            ('dsd (G)', u"dsd 🍞"),
+            ('(N)xyz', u"🥜xyz"),
+            ('djddj (G,L)xyz', u"djddj 🍞🥛xyz"),
+        ]
+
+        for test in test_vector:
+            self.assertEqual(test[1], menu_bot.allergies_to_emoji([test[0]])[0])
+
 
 if __name__ == "__main__":
     unittest.main()

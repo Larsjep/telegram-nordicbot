@@ -1,13 +1,13 @@
 #!/usr/bin/python2
 # -*- coding: utf-8 -*-
+from datetime import datetime
 import logging
 import os
-from datetime import datetime
-
-import requests
+import re
 
 from bs4 import BeautifulSoup
 from googletrans import Translator
+import requests
 from telegram.ext import CommandHandler, Updater
 
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
@@ -71,10 +71,16 @@ def translate(header, menu, language):
 
 
 def allergies_to_emoji(menu_items):
+    def letter_to_emoji(letter):
+        conv_table = {u"L": u"🥛", u"G": u"🍞", u"N": u"🥜"}
+        return conv_table.get(letter, '(?' + letter + '?)')
+
+    def convert_letters(re_search):
+        letters = re_search.group(1).split(',')
+        return "".join([letter_to_emoji(x) for x in letters])
+
     def do_replace(text):
-        return text.replace(u"(L)", u"🥛")  \
-                   .replace(u"(G)", u"🍞")  \
-                   .replace(u"(N)", u"🥜")
+        return re.sub("\(([GLN,]+)\)", convert_letters, text)
     return [do_replace(t) for t in menu_items]
 
 
