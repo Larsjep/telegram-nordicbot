@@ -80,7 +80,7 @@ def allergies_to_emoji(menu_items):
         return "".join([letter_to_emoji(x) for x in letters])
 
     def do_replace(text):
-        return re.sub("\(([GLN,]+)\)", convert_letters, text)
+        return re.sub("\\(([GLN,]+)\\)", convert_letters, text)
     return [do_replace(t) for t in menu_items]
 
 
@@ -103,7 +103,7 @@ def bot_menu(bot, update):
         try:
             header, menu = translate(header, menu, translate_to)
         except ValueError as exp:
-            print "Exception occured: {}".format(exp)
+            print(f"Exception occured: {exp}")
             bot.send_message(chat_id=update.message.chat_id, text=u"Ukendt sprog. Brug ISO639-1 landekode")
             return
     bot.send_message(chat_id=update.message.chat_id, text=u"{}:\t\n{}".format(header, "\t\n".join(allergies_to_emoji(menu))))
